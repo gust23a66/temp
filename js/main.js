@@ -20,3 +20,14 @@ assets.loadAll(() => {
 
   gameLoop();
 });
+
+function enableFullscreen(){
+  const el = document.documentElement;
+
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
+
+document.addEventListener("pointerdown", () => {
+  enableFullscreen();
+}, { once:true });
