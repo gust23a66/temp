@@ -144,3 +144,17 @@ html, body {
   bottom: 0;
   padding: 12px;
 }
+
+html, body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#000;
+  height:100%;
+}
+
+#game{
+  width:100vw;
+  height:100vh;
+  display:block;
+}
