@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Jogo</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <div id="hpWrap"><div id="hpBar"></div></div>
+    <div id="objective">Carregando...</div>
+    <div id="stats"></div>
+    <div id="coins">🪙 0</div>
+  </div>
+
+  <!-- UI mobile -->
+  <div id="mobile-ui">
+    <div id="stick"><div id="stick-knob"></div></div>
+    <div id="buttons">
+      <button id="btnAction">E</button>
+      <button id="btnAttack">⚔️</button>
+      <button id="btnUp">UP</button>
+    </div>
+  </div>
+
+  <!-- ordem importa -->
+  <script src="js/assets.js"></script>
+  <script src="js/maps.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script src="js/entities/player.js"></script>
+  <script src="js/entities/zombies.js"></script>
+
+  <script src="js/input/keyboard.js"></script>
+  <script src="js/input/touch.js"></script>
+<script src="js/shop.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
