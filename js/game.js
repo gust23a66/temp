@@ -5,6 +5,10 @@ ctx.imageSmoothingEnabled = false;
 canvas.width = MAP_W * TILE;
 canvas.height = MAP_H * TILE;
 
+// ✅ tamanho base do jogo
+const BASE_W = MAP_W * TILE;
+const BASE_H = MAP_H * TILE;
+
 let currentMap = map1;
 
 // itens fase 1
@@ -160,13 +164,21 @@ function handleActions(){
   }
 }
 
-function resizeCanvas(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+
+
+function fitCanvas(){
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const scale = Math.min(vw / BASE_W, vh / BASE_H);
+
+  canvas.style.width  = Math.floor(BASE_W * scale) + "px";
+  canvas.style.height = Math.floor(BASE_H * scale) + "px";
 }
 
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+window.addEventListener("resize", fitCanvas);
+window.addEventListener("orientationchange", fitCanvas);
+fitCanvas();
 
 
 function update(){
@@ -200,7 +212,7 @@ function gameLoop(){
 }
 
 canvas.addEventListener("pointerdown", (e) => {
-  
+   const p = canvasPointFromClient(e);
   const r = canvas.getBoundingClientRect();
   const mx = (e.clientX - r.left) * (canvas.width / r.width);
   const my = (e.clientY - r.top) * (canvas.height / r.height);

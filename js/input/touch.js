@@ -1,4 +1,5 @@
 (() => {
+  if (!("ontouchstart" in window)) return;
   const stick = document.getElementById("stick");
   const knob = document.getElementById("stick-knob");
   const btnAction = document.getElementById("btnAction");

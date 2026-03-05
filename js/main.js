@@ -31,3 +31,19 @@ function enableFullscreen(){
 document.addEventListener("pointerdown", () => {
   enableFullscreen();
 }, { once:true });
+
+const btnFullscreen = document.getElementById("btnFullscreen");
+
+btnFullscreen.addEventListener("click", () => {
+
+  if (!document.fullscreenElement) {
+
+    document.documentElement.requestFullscreen();
+
+  } else {
+
+    document.exitFullscreen();
+
+  }
+
+});
