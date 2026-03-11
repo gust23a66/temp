@@ -3,15 +3,14 @@ const shop = {
   open: false,
 
   upgrades: {
-    dmg:   { level: 0, base: 25,  add: 5,   cost: 10 },
-    hp:    { level: 0, base: 100, add: 20,  cost: 15 },
-    speed: { level: 0, base: 2.6, add: 0.25,cost: 12 },
-    atk:   { level: 0, base: 18,  add: -2,  cost: 14 }, // menor = mais rápido
+    dmg:  { level: 0, base: 25,  add: 5,  cost: 10 },
+    hp:   { level: 0, base: 100, add: 20, cost: 15 },
+    heal: { level: 0, base: 0,   add: 30, cost: 12 },
+    atk:  { level: 0, base: 18,  add: -2, cost: 14 },
   },
 
   toggle(){
     this.open = !this.open;
-    // limpa inputs pra não atacar/interagir ao abrir
     input.action = false;
     input.attack = false;
   },
@@ -25,39 +24,41 @@ const shop = {
     return this.coins >= this.getCost(key);
   },
 
-  buy(key){
-    const u = this.upgrades[key];
-    const price = this.getCost(key);
+ buy(key){
+  const price = this.getCost(key);
+  const u = this.upgrades[key];
 
-    if (this.coins < price) {
-      ui.setObjective("❌ Sem moedas suficientes!");
-      return false;
-    }
+  if (this.coins < price) {
+    ui.setObjective("❌ Sem moedas suficientes!");
+    return;
+  }
 
-    this.coins -= price;
-    u.level++;
+  this.coins -= price;
+  u.level++;
 
-    applyUpgrades();
-    ui.setCoins(this.coins);
-    ui.setObjective(`✅ Upgrade: ${key.toUpperCase()} (lvl ${u.level})`);
-    return true;
-  },
+  if (key === "heal") {
+    player.hp = Math.min(player.maxHp, player.hp + u.add);
+    ui.setHP(player.hp, player.maxHp);
+  }
 
-  // desenha menu no canvas
+  applyUpgrades();
+  ui.setCoins(this.coins);
+
+  ui.setObjective(`✅ Comprou ${key.toUpperCase()} (lvl ${u.level})`);
+},
+
   draw(ctx){
     if (!this.open) return;
 
-    // fundo escuro
     ctx.save();
     ctx.globalAlpha = 0.75;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // caixa
     const W = 520, H = 320;
-    const x = (canvas.width - W)/2;
-    const y = (canvas.height - H)/2;
+    const x = (canvas.width - W) / 2;
+    const y = (canvas.height - H) / 2;
 
     ctx.fillStyle = "#111";
     ctx.fillRect(x, y, W, H);
@@ -67,16 +68,15 @@ const shop = {
 
     ctx.fillStyle = "#fff";
     ctx.font = "20px Arial";
-    ctx.fillText(`UPGRADES (🪙 ${this.coins})`, x+18, y+32);
+    ctx.fillText(`UPGRADES (🪙 ${this.coins})`, x + 18, y + 32);
 
-    // botões (4 upgrades + fechar)
     this._buttons = [];
 
     const items = [
-      ["dmg",   "DANO",  `+${this.upgrades.dmg.add}`],
-      ["hp",    "VIDA",  `+${this.upgrades.hp.add}`],
-      ["speed", "SPEED", `+${this.upgrades.speed.add}`],
-      ["atk",   "ATAQUE",`cooldown ${this.upgrades.atk.add}`],
+      ["dmg",  "DANO",   `+${this.upgrades.dmg.add}`],
+      ["hp",   "VIDA",   `+${this.upgrades.hp.add}`],
+      ["heal", "CURA",   `+${this.upgrades.heal.add} HP`],
+      ["atk",  "ATAQUE", `cooldown ${this.upgrades.atk.add}`],
     ];
 
     const bx = x + 20;
@@ -88,7 +88,7 @@ const shop = {
       const cost = this.getCost(key);
       const lvl = this.upgrades[key].level;
 
-      const btn = { key, x: bx, y: by, w: W-40, h: 48 };
+      const btn = { key, x: bx, y: by, w: W - 40, h: 48 };
       this._buttons.push(btn);
 
       ctx.fillStyle = this.canBuy(key) ? "#222" : "#1a1a1a";
@@ -97,27 +97,25 @@ const shop = {
       ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
 
       ctx.fillStyle = "#fff";
-      ctx.fillText(`${label} (${desc})  •  lvl ${lvl}  •  custo ${cost}`, btn.x+12, btn.y+30);
+      ctx.fillText(`${label} (${desc}) • lvl ${lvl} • custo ${cost}`, btn.x + 12, btn.y + 30);
 
       by += 56;
     }
 
-    // fechar
-    const closeBtn = { key: "__close__", x: x+W-120, y: y+H-54, w: 100, h: 36 };
+    const closeBtn = { key: "__close__", x: x + W - 120, y: y + H - 54, w: 100, h: 36 };
     this._buttons.push(closeBtn);
 
     ctx.fillStyle = "#6f2cff";
     ctx.fillRect(closeBtn.x, closeBtn.y, closeBtn.w, closeBtn.h);
     ctx.fillStyle = "#fff";
-    ctx.fillText("FECHAR", closeBtn.x+16, closeBtn.y+24);
+    ctx.fillText("FECHAR", closeBtn.x + 16, closeBtn.y + 24);
   },
 
-  // clique/toque no canvas
   handleClick(mx, my){
     if (!this.open) return;
 
     for (const b of (this._buttons || [])){
-      const hit = mx >= b.x && mx <= b.x+b.w && my >= b.y && my <= b.y+b.h;
+      const hit = mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h;
       if (!hit) continue;
 
       if (b.key === "__close__"){
@@ -139,34 +137,8 @@ function applyUpgrades(){
   player.maxHp = u.hp.base + u.hp.level * u.hp.add;
   if (player.hp > player.maxHp) player.hp = player.maxHp;
 
-  player.speed = u.speed.base + u.speed.level * u.speed.add;
-
   player.attackCooldownBase = Math.max(6, u.atk.base + u.atk.level * u.atk.add);
-}
-function applyUpgrades(){
-  const u = shop.upgrades;
 
-  player.damage = u.dmg.base + u.dmg.level * u.dmg.add;
-
-  player.maxHp = u.hp.base + u.hp.level * u.hp.add;
-  if (player.hp > player.maxHp) player.hp = player.maxHp;
-
-  player.speed = u.speed.base + u.speed.level * u.speed.add;
-
-  player.attackCooldownBase = Math.max(6, u.atk.base + u.atk.level * u.atk.add);
-}
-
-function applyUpgrades(){
-  // aplica no player
-  const u = shop.upgrades;
-
-  player.damage = u.dmg.base + u.dmg.level * u.dmg.add;
-
-  player.maxHp = u.hp.base + u.hp.level * u.hp.add;
-  if (player.hp > player.maxHp) player.hp = player.maxHp;
-
-  player.speed = u.speed.base + u.speed.level * u.speed.add;
-
-  // cooldown mínimo 6
-  player.attackCooldownBase = Math.max(6, u.atk.base + u.atk.level * u.atk.add);
+  // atualiza barra
+  ui.setHP(player.hp, player.maxHp);
 }

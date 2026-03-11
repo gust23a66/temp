@@ -108,17 +108,77 @@ function drawSwordInHand(ctx, p){
   ctx.restore();
 }
 
+function nextWeapon(){
+  if (player.weapon === "sword") player.weapon = "gun";
+  else if (player.weapon === "gun") player.weapon = "bow";
+  else player.weapon = "sword";
+
+  ui.setObjective("Arma: " + player.weapon.toUpperCase());
+}
+
+
+function drawGunInHand(ctx, p){
+  if (!assets.has("gun")) return;
+
+  const img = assets.get("gun");
+
+  const baseX = p.x + 28;
+  const baseY = p.y + 28;
+
+  let ox=0, oy=0, angle=0;
+
+  if (p.frameY===DIR_ROW.right){ ox=20; oy=6; angle=0; }
+  if (p.frameY===DIR_ROW.left){  ox=-20; oy=6; angle=Math.PI; }
+  if (p.frameY===DIR_ROW.up){    ox=6; oy=-20; angle=-Math.PI/2; }
+  if (p.frameY===DIR_ROW.down){  ox=6; oy=20; angle=Math.PI/2; }
+
+  ctx.save();
+  ctx.translate(baseX+ox, baseY+oy);
+  ctx.rotate(angle);
+  ctx.drawImage(img, -30, -15, 60, 30);
+  ctx.restore();
+}
+
+function drawBowInHand(ctx, p){
+  if (!assets.has("bow")) return;
+
+  const img = assets.get("bow");
+
+  const baseX = p.x + 28;
+  const baseY = p.y + 28;
+
+  let ox=0, oy=0, angle=0;
+
+  if (p.frameY===DIR_ROW.right){ ox=18; oy=4; angle=0; }
+  if (p.frameY===DIR_ROW.left){  ox=-18; oy=4; angle=Math.PI; }
+  if (p.frameY===DIR_ROW.up){    ox=6; oy=-18; angle=-Math.PI/2; }
+  if (p.frameY===DIR_ROW.down){  ox=6; oy=18; angle=Math.PI/2; }
+
+  ctx.save();
+  ctx.translate(baseX+ox, baseY+oy);
+  ctx.rotate(angle);
+  ctx.drawImage(img, -28, -40, 56, 80);
+  ctx.restore();
+}
+
 
 const player = {
   x: 0, y: 0,
   w: 32, h: 44,
   speed: 2.6,
 
+
+
   hp: 100,
   maxHp: 100,
   invul: 0,
 
   hasSword: false,
+
+hasGun: false,
+hasBow: false,
+weapon: "sword",
+
   attackCooldown: 0,
   attackCooldownBase: 18,
   damage: 25,
@@ -155,8 +215,10 @@ const player = {
       }
 
       const len = Math.hypot(dx, dy);
-      dx = (dx/len) * this.speed;
-      dy = (dy/len) * this.speed;
+const currentSpeed = input.sprint ? this.speed * 1.8 : this.speed;
+
+dx = (dx/len) * currentSpeed;
+dy = (dy/len) * currentSpeed;
 
       moveAndCollide(dx, dy);
 
@@ -170,12 +232,15 @@ const player = {
     }
   },
 
-  tryAttack(){
-    if (!this.hasSword) return;
-    if (this.attackCooldown > 0) return;
 
-    this.attackCooldown = this.attackCooldownBase;
+  
 
+tryAttack(){
+  if (this.attackCooldown > 0) return;
+
+  this.attackCooldown = this.attackCooldownBase;
+
+  if (this.weapon === "sword"){
     this.attacking = true;
     this.attackAnim = 10;
 
@@ -196,13 +261,21 @@ const player = {
     }
 
     hitZombies(box, this.damage);
-  },
+  }
 
-  draw(ctx){
+  if (this.weapon === "gun" && this.hasGun){
+    shootBullet(this);
+  }
+
+  if (this.weapon === "bow" && this.hasBow){
+    shootArrow(this);
+  }
+},
+
+draw(ctx){
 
   // ===== PLAYER =====
   if (assets.has("player") && PW && PH) {
-
     const img = assets.get("player");
 
     const sx = this.frameX * PW;
@@ -215,20 +288,24 @@ const player = {
       Math.floor(this.y),
       56, 56
     );
-
   } else {
-
     ctx.fillStyle = "#4aa3ff";
     ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 40, 50);
-drawSwordInHand(ctx, this);
   }
 
-
-  
+  // ===== ARMA EQUIPADA =====
+  if (this.weapon === "sword") {
+  drawSwordInHand(ctx, this);
+}
+else if (this.weapon === "gun") {
+  drawGunInHand(ctx, this);
+}
+else if (this.weapon === "bow") {
+  drawBowInHand(ctx, this);
+}
 
   // ===== INVULNERABILIDADE =====
   if (this.invul > 0){
-
     ctx.strokeStyle = "rgba(255,255,255,0.6)";
     ctx.strokeRect(
       Math.floor(this.x),
@@ -236,10 +313,15 @@ drawSwordInHand(ctx, this);
       56,
       56
     );
-
   }
-
-drawSwordInHand(ctx, this);
-
 }
-}; 
+
+
+
+
+
+
+
+
+};
+

@@ -7,10 +7,12 @@ const assets = {
     ["key",    "imagens/key.png"],
     ["door",   "imagens/porta.png"],
     ["sword",  "imagens/espada.png"],
-    ["zombie", "imagens/zombie.png"], // você coloca depois
+    ["zombie", "imagens/zombie.png"],
+    ["gun",    "imagens/gun.png"],
+    ["bow",    "imagens/bow.png"],
+    ["arrow", "imagens/flecha.png"],
+    ["bullet", "imagens/bala.png"],
   ],
-
-  
 
   loadAll(onDone) {
     let left = this.list.length;
@@ -40,16 +42,3 @@ const assets = {
   get(name) { return this.imgs[name]; },
   has(name) { return !!this.ok[name]; },
 };
-
-const SWORD_FRAMES = 4;
-
-let SW = 0;
-let SH = 0;
-
-function initSwordSheet(){
-  const img = assets.get("sword");
-  if(!img) return;
-
-  SW = img.width / SWORD_FRAMES;
-  SH = img.height;
-}

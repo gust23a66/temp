@@ -83,7 +83,7 @@ function updateZombies(){
   horde.spawnTimer++;
   updateHordeDifficulty();
 
-  const aliveCount = zombies.filter(z=>z.alive).length;
+  const aliveCount = zombies.filter(z => z.alive).length;
   if (horde.spawnTimer >= horde.spawnEvery && aliveCount < horde.maxAlive) {
     spawnZombieOutside();
     horde.spawnTimer = 0;
@@ -94,47 +94,57 @@ function updateZombies(){
 
     if (z.atkCd > 0) z.atkCd--;
 
-    const pcx = player.x + player.w/2;
-    const pcy = player.y + player.h/2;
-    const zcx = z.x + z.w/2;
-    const zcy = z.y + z.h/2;
+    const pcx = player.x + player.w / 2;
+    const pcy = player.y + player.h / 2;
+    const zcx = z.x + z.w / 2;
+    const zcy = z.y + z.h / 2;
 
     const dx = pcx - zcx;
     const dy = pcy - zcy;
     const dist = Math.hypot(dx, dy);
 
-// animação
-z.animTick++;
-if (z.animTick % 12 === 0) z.frameX = (z.frameX + 1) % ZOMBIE_COLS;
-z.frameY = (dist < 60) ? 1 : 0;
+    // animação
+    z.animTick++;
+    if (z.animTick % 12 === 0) {
+      z.frameX = (z.frameX + 1) % ZOMBIE_COLS;
+    }
+    z.frameY = (dist < 60) ? 1 : 0;
 
     const range = 42;
 
+    // ataque no player
     if (dist < range) {
       if (z.atkCd === 0 && player.invul === 0) {
         player.hp -= z.dmg;
         if (player.hp < 0) player.hp = 0;
+
         player.invul = 18;
         z.atkCd = 35;
+
+        // game over
+        if (player.hp <= 0) {
+          player.hp = 0;
+          stopHorde();
+          gameOver = true;
+          
+        }
       }
       continue;
     }
 
+    // perseguir player
     if (dist > 0.001) {
-      z.x += (dx/dist)*z.speed;
-      z.y += (dy/dist)*z.speed;
+      z.x += (dx / dist) * z.speed;
+      z.y += (dy / dist) * z.speed;
     }
   }
 
-  if (horde.killed >= horde.goalKill) {
-    stopHorde();
-    ui.setObjective("✅ Venceu a horda! Aperte E para reiniciar a fase.");
-  }
-
-  if (player.hp <= 0) {
-    stopHorde();
-    ui.setObjective("💀 Game Over. Aperte E para tentar de novo.");
-  }
+  // vitória
+  // vitória
+if (horde.killed >= horde.goalKill) {
+  stopHorde();
+  ui.setObjective("✅ Venceu a horda! Aperte E para reiniciar a fase.");
+}
 }
 
 function drawZombies(ctx) {

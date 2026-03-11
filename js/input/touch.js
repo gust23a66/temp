@@ -1,5 +1,4 @@
 (() => {
-  if (!("ontouchstart" in window)) return;
   const stick = document.getElementById("stick");
   const knob = document.getElementById("stick-knob");
   const btnAction = document.getElementById("btnAction");
@@ -18,9 +17,7 @@
   }
 
   stick.addEventListener("pointerdown", (e) => {
-    // ✅ se a loja estiver aberta, não move
     if (typeof shop !== "undefined" && shop.open) return;
-
     e.preventDefault();
     active = true;
     stick.setPointerCapture(e.pointerId);
@@ -47,7 +44,6 @@
     input.dx = nx / R;
     input.dy = ny / R;
 
-    // knob centralizado + offset
     knob.style.transform = `translate(${nx}px, ${ny}px)`;
   });
 
@@ -59,25 +55,30 @@
     if (typeof shop !== "undefined" && shop.open) return;
     input.action = true;
   });
-  btnAction.addEventListener("pointerup", (e) => { e.preventDefault(); input.action = false; });
-  btnAction.addEventListener("pointercancel", (e) => { e.preventDefault(); input.action = false; });
 
   btnAttack.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     if (typeof shop !== "undefined" && shop.open) return;
-    input.attack = true;
+    input.sprint = true;
   });
-  btnAttack.addEventListener("pointerup", (e) => { e.preventDefault(); input.attack = false; });
-  btnAttack.addEventListener("pointercancel", (e) => { e.preventDefault(); input.attack = false; });
 
-  // ✅ loja de upgrades (abre/fecha)
+  btnAttack.addEventListener("pointerup", (e) => {
+    e.preventDefault();
+    input.sprint = false;
+  });
+
+  btnAttack.addEventListener("pointercancel", (e) => {
+    e.preventDefault();
+    input.sprint = false;
+  });
+
   if (btnUp) {
     btnUp.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       shop.toggle();
-      reset();               // para o analógico
-      input.action = false;  // evita clicar E junto
-      input.attack = false;  // evita atacar junto
+      reset();
+      input.action = false;
+      input.attack = false;
     });
   }
 })();

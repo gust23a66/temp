@@ -6,12 +6,12 @@ const shop = {
   panel: { x: 60, y: 50, w: 650, h: 380 },
   cards: [],
 
-  upgrades: {
-    dmg:   { name: "DANO",   desc: "+5 dano",   level: 0, base: 25,  add: 5,  cost: 10 },
-    hp:    { name: "VIDA",   desc: "+20 vida",  level: 0, base: 100, add: 20, cost: 15 },
-    speed: { name: "SPEED",  desc: "+0.25 vel", level: 0, base: 2.6, add: 0.25, cost: 12 },
-    atk:   { name: "ATAQUE", desc: "mais rápido", level: 0, base: 18, add: -2, cost: 14 }, // cooldown menor
-  },
+ upgrades: {
+  dmg:  { name: "DANO",  desc: "+5 dano",  level: 0, base: 25,  add: 5,  cost: 10 },
+  hp:   { name: "VIDA",  desc: "+20 vida", level: 0, base: 100, add: 20, cost: 15 },
+  heal: { name: "CURA",  desc: "+30 HP",   level: 0, base: 0,   add: 30, cost: 12 },
+  atk:  { name: "ATAQUE",desc: "mais rápido", level: 0, base: 18, add: -2, cost: 14 },
+},
 
   getCost(key){
     const u = this.upgrades[key];
@@ -29,7 +29,7 @@ const shop = {
     const cw = (p.w - pad*3) / 2;
     const ch = (p.h - pad*3) / 2;
 
-    const keys = ["dmg","hp","speed","atk"];
+    const keys = ["dmg","hp","heal","atk"];
     this.cards = keys.map((k, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
@@ -43,36 +43,49 @@ const shop = {
     });
   },
 
-  apply(){
-    const u = this.upgrades;
+buy(key){
+  const price = this.getCost(key);
+  const u = this.upgrades[key];
 
-    player.damage = u.dmg.base + u.dmg.level * u.dmg.add;
+  if (this.coins < price) {
+    ui.setObjective("❌ Sem moedas suficientes!");
+    return;
+  }
 
-    player.maxHp = u.hp.base + u.hp.level * u.hp.add;
-    if (player.hp > player.maxHp) player.hp = player.maxHp;
+  this.coins -= price;
+  u.level++;
 
-    player.speed = u.speed.base + u.speed.level * u.speed.add;
+  if (key === "heal"){
+    player.hp = Math.min(player.maxHp, player.hp + u.add);
+    ui.setHP(player.hp, player.maxHp);
+  }
 
-    player.attackCooldownBase = Math.max(6, u.atk.base + u.atk.level * u.atk.add);
+  this.apply();
 
-    ui.setCoins(this.coins);
-  },
+  ui.setObjective(`✅ Comprou ${u.name} (lvl ${u.level})`);
+},
 
-  buy(key){
-    const price = this.getCost(key);
-    const u = this.upgrades[key];
+buy(key){
+  const price = this.getCost(key);
+  const u = this.upgrades[key];
 
-    if (this.coins < price) {
-      ui.setObjective("❌ Sem moedas suficientes!");
-      return;
-    }
+  if (this.coins < price) {
+    ui.setObjective("❌ Sem moedas suficientes!");
+    return;
+  }
 
-    this.coins -= price;
-    u.level++;
-    this.apply();
+  this.coins -= price;
+  u.level++;
 
-    ui.setObjective(`✅ Comprou ${u.name} (lvl ${u.level})`);
-  },
+  if (key === "heal"){
+    player.hp = Math.min(player.maxHp, player.hp + u.add);
+    ui.setHP(player.hp, player.maxHp);
+  }
+
+  this.apply();
+
+  ui.setObjective(`✅ Comprou ${u.name} (lvl ${u.level})`);
+},
 
   handleClick(mx, my){
     if (!this.open) return false;
