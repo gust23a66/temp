@@ -109,9 +109,22 @@ function drawSwordInHand(ctx, p){
 }
 
 function nextWeapon(){
-  if (player.weapon === "sword") player.weapon = "gun";
-  else if (player.weapon === "gun") player.weapon = "bow";
-  else player.weapon = "sword";
+  const available = [];
+
+  if (player.hasSword) available.push("sword");
+  if (player.hasGun)   available.push("gun");
+  if (player.hasBow)   available.push("bow");
+
+  if (available.length === 0) return;
+
+  let i = available.indexOf(player.weapon);
+
+  if (i === -1) {
+    player.weapon = available[0];
+  } else {
+    i = (i + 1) % available.length;
+    player.weapon = available[i];
+  }
 
   ui.setObjective("Arma: " + player.weapon.toUpperCase());
 }
@@ -177,7 +190,7 @@ const player = {
 
 hasGun: false,
 hasBow: false,
-weapon: "sword",
+weapon: null,
 
   attackCooldown: 0,
   attackCooldownBase: 18,
@@ -243,7 +256,7 @@ tryAttack(){
 
   this.attackCooldown = this.attackCooldownBase;
 
-  if (this.weapon === "sword"){
+ if (this.weapon === "sword" && this.hasSword){ 
     this.attacking = true;
     this.attackAnim = 10;
 
@@ -297,13 +310,13 @@ draw(ctx){
   }
 
   // ===== ARMA EQUIPADA =====
-  if (this.weapon === "sword") {
+ if (this.weapon === "sword" && this.hasSword) {
   drawSwordInHand(ctx, this);
 }
-else if (this.weapon === "gun") {
+else if (this.weapon === "gun" && this.hasGun) {
   drawGunInHand(ctx, this);
 }
-else if (this.weapon === "bow") {
+else if (this.weapon === "bow" && this.hasBow) {
   drawBowInHand(ctx, this);
 }
 
