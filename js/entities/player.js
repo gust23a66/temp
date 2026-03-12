@@ -213,14 +213,17 @@ weapon: "sword",
       } else {
         this.frameY = dy > 0 ? DIR_ROW.down : DIR_ROW.up;
       }
+const len = Math.hypot(dx, dy);
+const stickPower = Math.min(1, len);
 
-      const len = Math.hypot(dx, dy);
-const currentSpeed = input.sprint ? this.speed * 1.8 : this.speed;
+let currentSpeed = this.speed;
+if (input.run) currentSpeed = this.speed * 1.35;
 
-dx = (dx/len) * currentSpeed;
-dy = (dy/len) * currentSpeed;
-
-      moveAndCollide(dx, dy);
+if (len > 0) {
+  dx = (dx / len) * currentSpeed * stickPower;
+  dy = (dy / len) * currentSpeed * stickPower;
+  moveAndCollide(dx, dy);
+}
 
       this.animTick++;
       if (this.animTick % 8 === 0) {

@@ -476,6 +476,7 @@ fitCanvas();
 
 
 function update(){
+   updateKeyboard();
   handleActions();
 
   if (gameOver) {
@@ -514,6 +515,7 @@ function draw(){
 }
 
 function gameLoop(){
+  updateKeyboard();
   update();
   draw();
   requestAnimationFrame(gameLoop);

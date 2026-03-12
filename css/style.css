@@ -13,7 +13,7 @@ body{
   justify-content:center;
 }
 
-/* canvas do jogo (tamanho visual vai ser setado pelo JS fitCanvas) */
+/* canvas do jogo */
 #game{
   display:block;
   background:#111;
@@ -42,21 +42,28 @@ body{
   background:rgba(0,0,0,.35);
 }
 
-#hpBar{ height:100%; width:100%; background:limegreen; }
+#hpBar{
+  height:100%;
+  width:100%;
+  background:limegreen;
+}
 
 #objective{ font-size:14px; opacity:.95; margin-bottom:6px; }
 #stats{ font-size:13px; opacity:.9; }
 #coins{ font-size:14px; margin-bottom:6px; opacity:.95; }
 
-/* MOBILE UI overlay */
+/* MOBILE UI */
 #mobile-ui{
   position:fixed;
-  left:0; right:0; bottom:0;
+  left:0;
+  right:0;
+  bottom:0;
   height:180px;
   pointer-events:none;
   z-index:20;
 }
 
+/* joystick */
 #stick{
   position:absolute;
   left:20px;
@@ -82,6 +89,7 @@ body{
   border:2px solid rgba(255,255,255,.22);
 }
 
+/* BOTÕES MOBILE */
 #buttons{
   position:absolute;
   right:20px;
@@ -102,6 +110,13 @@ body{
   touch-action:none;
 }
 
+/* botão trocar arma acima do UP */
+#btnWeapon{
+  position:absolute;
+  right:0;
+  bottom:90px;
+}
+
 /* botão fullscreen */
 #btnFullscreen{
   position:fixed;
@@ -120,12 +135,12 @@ body{
 /* esconder controles mobile no PC */
 @media (hover: hover) and (pointer: fine) {
   #mobile-ui {
-    display: none;
+    display:none;
   }
 }
 
 @media (hover: none) and (pointer: coarse) {
   #mobile-ui {
-    display: block;
+    display:block;
   }
 }

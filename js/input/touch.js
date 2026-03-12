@@ -4,6 +4,7 @@
   const btnAction = document.getElementById("btnAction");
   const btnAttack = document.getElementById("btnAttack");
   const btnUp = document.getElementById("btnUp");
+  const btnWeapon = document.getElementById("btnWeapon");
 
   let active = false;
   let centerX = 0, centerY = 0;
@@ -11,6 +12,7 @@
 
   function reset(){
     active = false;
+    input.touchActive = false;
     input.dx = 0;
     input.dy = 0;
     knob.style.transform = "translate(-50%,-50%)";
@@ -20,6 +22,7 @@
     if (typeof shop !== "undefined" && shop.open) return;
     e.preventDefault();
     active = true;
+    input.touchActive = true;
     stick.setPointerCapture(e.pointerId);
 
     const r = stick.getBoundingClientRect();
@@ -44,7 +47,7 @@
     input.dx = nx / R;
     input.dy = ny / R;
 
-    knob.style.transform = `translate(${nx}px, ${ny}px)`;
+    knob.style.transform = `translate(calc(-50% + ${nx}px), calc(-50% + ${ny}px))`;
   });
 
   stick.addEventListener("pointerup", (e) => { e.preventDefault(); reset(); });
@@ -59,17 +62,17 @@
   btnAttack.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     if (typeof shop !== "undefined" && shop.open) return;
-    input.sprint = true;
+    input.run = true;
   });
 
   btnAttack.addEventListener("pointerup", (e) => {
     e.preventDefault();
-    input.sprint = false;
+    input.run = false;
   });
 
   btnAttack.addEventListener("pointercancel", (e) => {
     e.preventDefault();
-    input.sprint = false;
+    input.run = false;
   });
 
   if (btnUp) {
@@ -78,7 +81,15 @@
       shop.toggle();
       reset();
       input.action = false;
-      input.attack = false;
+      input.run = false;
+    });
+  }
+
+  if (btnWeapon) {
+    btnWeapon.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      if (typeof shop !== "undefined" && shop.open) return;
+      nextWeapon();
     });
   }
 })();
